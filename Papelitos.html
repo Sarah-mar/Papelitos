@@ -1,0 +1,1455 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Papelitos</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #101522;
+            color: #f4f6fb;
+            font-family: Arial, sans-serif;
+        }
+
+        main {
+            max-width: 850px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 42px;
+        }
+
+        .panel {
+            background: #1a2335;
+            border: 1px solid #35425d;
+            border-radius: 18px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        label {
+            display: block;
+            margin: 12px 0 5px;
+            color: #b8c3d5;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 9px;
+            border: 1px solid #465674;
+            background: #101827;
+            color: white;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 14px;
+            border: 0;
+            border-radius: 10px;
+            background: #897aff;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:disabled {
+            opacity: .4;
+            cursor: not-allowed;
+        }
+
+        .good {
+            background: #35c98a;
+            color: #10251d;
+        }
+
+        .secondary {
+            background: #35435d;
+        }
+
+        .wide {
+            width: 100%;
+            margin-top: 12px;
+        }
+
+        .teams {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+        }
+
+        .team {
+            background: #27344b;
+            padding: 12px;
+            border-radius: 12px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .muted {
+            color: #aab5c8;
+        }
+
+        .timer {
+            font-size: 80px;
+            font-weight: 900;
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .word {
+            font-size: 42px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 110px;
+            display: grid;
+            place-items: center;
+            overflow-wrap: anywhere;
+        }
+
+        .phase {
+            text-align: center;
+            color: #aab5c8;
+            font-weight: bold;
+        }
+
+        .teamname {
+            text-align: center;
+            font-size: 25px;
+            font-weight: bold;
+            margin: 10px;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .pills {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .pill {
+            background: #35435d;
+            padding: 8px 12px;
+            border-radius: 30px;
+        }
+
+        .score {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .score td,
+        .score th {
+            padding: 10px;
+            border-bottom: 1px solid #35425d;
+            text-align: left;
+        }
+
+        .review {
+            background: #111a2a;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .review input {
+            width: 20px;
+            flex-shrink: 0;
+        }
+
+        .review input[type="checkbox"] {
+            accent-color: #35c98a;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .notice {
+            background: #302b20;
+            padding: 12px;
+            border-radius: 10px;
+            color: #ffe3a0;
+        }
+
+        .shortcut {
+            text-align: center;
+            font-size: 13px;
+            color: #aab5c8;
+            margin-top: 12px;
+        }
+
+        .phase-notice {
+            text-align: center;
+            color: #ffc857;
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        @media(max-width:500px) {
+            .timer {
+                font-size: 65px;
+            }
+
+            .word {
+                font-size: 32px;
+            }
+
+            .actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+
+        <h1>🎭 Papelitos</h1>
+
+        <!-- CONFIGURAÇÃO -->
+
+        <section id="setup" class="panel">
+
+            <h2>Configurar partida</h2>
+
+            <label>Quantidade de equipes</label>
+
+            <select id="teamCount">
+                <option value="2">2 equipes</option>
+                <option value="3">3 equipes</option>
+                <option value="4">4 equipes</option>
+            </select>
+
+            <div id="teamInputs" class="teams"></div>
+
+            <label>Tempo por turno</label>
+
+            <select id="time">
+                <option value="60">1 minuto</option>
+                <option value="45">45 segundos</option>
+                <option value="90">1 minuto e 30 segundos</option>
+            </select>
+
+            <p class="muted">
+                A IA gerará as palavras da partida: serão selecionadas 5 palavras por jogador.
+                As mesmas palavras serão utilizadas nas três fases.
+            </p>
+
+            <div class="notice">
+                Fase 1: Uma frase.
+                Fase 2: Uma palavra.
+                Fase 3: Uma mímica.
+            </div>
+
+            <button class="wide" id="startGameButton" onclick="startGame()">
+                Começar partida
+            </button>
+
+            <p class="center muted" id="generationStatus" aria-live="polite"></p>
+
+        </section>
+
+        <!-- JOGO -->
+
+        <section id="game" class="hidden">
+
+            <div class="panel">
+
+                <div class="pills" id="pills"></div>
+
+                <div class="phase" id="phase"></div>
+
+                <div class="teamname" id="teamName"></div>
+
+                <div class="timer" id="timer">01:00</div>
+
+                <div class="word" id="word">Prepare-se!</div>
+
+                <p class="center muted" id="remainingWords"></p>
+
+                <button class="good wide" id="nextWord" onclick="nextWord()" disabled>
+                    → Próxima palavra
+                </button>
+
+                <div class="actions" style="margin-top:10px">
+
+                    <button id="startTimer" onclick="startTimer()">
+                        Iniciar turno
+                    </button>
+
+                    <button class="secondary" id="pause" onclick="pauseTimer()" disabled>
+                        Pausar
+                    </button>
+
+                </div>
+
+                <p class="shortcut">
+                    Pressione <strong>→</strong> no teclado para avançar a palavra.
+                </p>
+
+                <div id="phaseNotice" class="phase-notice"></div>
+
+            </div>
+
+            <div class="panel">
+
+                <h2>Placar</h2>
+
+                <div id="scoreboard"></div>
+
+            </div>
+
+        </section>
+
+        <!-- RESUMO DO TURNO -->
+
+        <section id="review" class="panel hidden">
+
+            <h2 id="reviewTitle">Resumo do turno</h2>
+
+            <p class="muted">
+                Todas as palavras avançadas são consideradas acertos.
+                Desmarque aquelas que não foram acertadas.
+                Elas voltarão ao conjunto de palavras.
+            </p>
+
+            <div id="reviewList"></div>
+
+            <button class="wide" id="confirmReview" onclick="confirmReview()">
+                Confirmar revisão
+            </button>
+
+        </section>
+
+        <!-- RESULTADO FINAL -->
+
+        <section id="finish" class="panel hidden center">
+
+            <h2 id="winner"></h2>
+
+            <div id="finalScore"></div>
+
+            <button class="wide" onclick="location.reload()">
+                Nova partida
+            </button>
+
+        </section>
+
+    </main>
+
+    <script>
+
+        /* =========================================
+           GERAÇÃO DE PALAVRAS COM GEMINI
+        ========================================= */
+
+        // Cole aqui sua chave criada no Google AI Studio.
+        // ATENÇÃO: esta chave ficará visível no navegador.
+        const GEMINI_API_KEY = "COLE_SUA_CHAVE_AQUI";
+        const GEMINI_MODEL = "gemini-3.8-flash";
+        const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+
+        function normalizeWord(word) {
+            return String(word)
+                .normalize("NFD")
+                .replace(/[\u0300-\u036f]/g, "")
+                .toLocaleLowerCase("pt-BR")
+                .replace(/\s+/g, " ")
+                .trim();
+        }
+
+        function buildWordPrompt(amount, excludedWords) {
+            return `Você é responsável por criar o banco de palavras de um jogo de adivinhação chamado Papelitos.
+
+Gere EXATAMENTE ${amount} palavras ou expressões curtas, em português brasileiro, adequadas para serem explicadas por uma frase, por uma única palavra ou por mímica.
+
+DISTRIBUIÇÃO OBRIGATÓRIA:
+Distribua as sugestões de maneira equilibrada entre estas cinco categorias, com quantidades tão próximas quanto possível:
+1. OBJETOS: objetos físicos, ferramentas, utensílios, móveis, aparelhos e itens do cotidiano.
+2. PROFISSÕES: ocupações e profissões conhecidas.
+3. FRUTAS: frutas reais e reconhecidas no Brasil.
+4. CORES: nomes comuns de cores em português brasileiro.
+5. ENTRETENIMENTO: exclusivamente títulos de FILMES, SÉRIES ou DESENHOS/ANIMAÇÕES extremamente conhecidos e reconhecíveis pela cultura ocidental em geral. Não inclua jogos, livros, músicas, celebridades, programas obscuros, obras de nicho, animes pouco conhecidos ou produções populares apenas em um país ou fandom específico. Prefira sucessos de grande alcance internacional.
+
+CRITÉRIOS DE QUALIDADE:
+- Use termos concretos, familiares e fáceis de reconhecer por pessoas de diferentes idades.
+- Escreva em português brasileiro, mantendo nomes oficiais de obras quando necessário.
+- Cada item deve ser uma palavra ou uma expressão curta; títulos conhecidos podem conter mais de uma palavra.
+- Evite conceitos abstratos, temas muito técnicos, marcas comerciais, nomes próprios aleatórios e itens ofensivos.
+- Não gere variações artificiais da mesma resposta (por exemplo, singular/plural, grafias diferentes ou sinônimos quase idênticos).
+- Não repita nenhum item na lista.
+- Evite usar qualquer item da lista de palavras já utilizadas abaixo. Considere equivalentes as palavras que diferem apenas por maiúsculas, minúsculas ou acentos.
+
+PALAVRAS JÁ UTILIZADAS — NÃO REPETIR:
+${JSON.stringify(excludedWords)}
+
+FORMATO DE RESPOSTA:
+Retorne somente JSON válido, sem Markdown, sem bloco de código, sem comentários e sem texto antes ou depois, exatamente neste formato:
+{"words":["palavra 1","palavra 2"]}
+
+A propriedade "words" deve conter exatamente ${amount} itens distintos. Não inclua os nomes das categorias na lista, nem numeração.`;
+        }
+
+        async function generateWordBank(amount, minimumRequired) {
+            if (!GEMINI_API_KEY || GEMINI_API_KEY === "COLE_SUA_CHAVE_API_AQUI") {
+                throw new Error("Adicione sua chave do Google AI Studio em GEMINI_API_KEY, no início do código.");
+            }
+
+            const excludedWords = readHistory().slice(0, 2).flat();
+            const prompt = buildWordPrompt(amount, excludedWords);
+            const maxOutputTokens = Math.min(65536, Math.max(4096, amount * 18));
+
+            let response;
+            try {
+                response = await fetch(GEMINI_API_URL, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "x-goog-api-key": GEMINI_API_KEY
+                    },
+                    body: JSON.stringify({
+                        contents: [{
+                            role: "user",
+                            parts: [{ text: prompt }]
+                        }],
+                        generationConfig: {
+                            responseMimeType: "application/json",
+                            maxOutputTokens
+                        }
+                    })
+                });
+            } catch (error) {
+                throw new Error("Não foi possível conectar à API do Gemini. Verifique sua conexão e execute o HTML por um servidor local (por exemplo, Live Server). Detalhe: " + error.message);
+            }
+
+            const payload = await response.json().catch(() => null);
+
+            if (!response.ok) {
+                const apiMessage = payload?.error?.message || "A API não retornou detalhes adicionais.";
+                if (response.status === 429) {
+                    throw new Error("Limite de requisições ou cota gratuita do Gemini atingida. Aguarde a renovação da cota e tente novamente. Detalhe: " + apiMessage);
+                }
+                if (response.status === 503) {
+                    throw new Error("O Gemini está temporariamente sobrecarregado. Tente novamente em alguns instantes. Detalhe: " + apiMessage);
+                }
+                throw new Error(`Erro da API Gemini (HTTP ${response.status}): ${apiMessage}`);
+            }
+
+            const candidate = payload?.candidates?.[0];
+            const finishReason = candidate?.finishReason;
+            if (finishReason === "MAX_TOKENS") {
+                throw new Error("O Gemini atingiu o limite de tamanho da resposta antes de terminar a lista. Tente uma partida com menos jogadores.");
+            }
+
+            const responseText = candidate?.content?.parts
+                ?.map(part => part.text || "")
+                .join("")
+                .trim();
+
+            if (!responseText) {
+                const blockReason = payload?.promptFeedback?.blockReason;
+                throw new Error("O Gemini não retornou uma lista de palavras." + (blockReason ? ` Motivo informado: ${blockReason}.` : ""));
+            }
+
+            let parsed;
+            try {
+                parsed = JSON.parse(responseText);
+            } catch (error) {
+                throw new Error("A resposta do Gemini não veio em JSON válido. Tente gerar novamente.");
+            }
+
+            const rawWords = Array.isArray(parsed) ? parsed : parsed?.words;
+            if (!Array.isArray(rawWords)) {
+                throw new Error("O JSON do Gemini não contém a propriedade 'words'.");
+            }
+
+            const uniqueWords = [];
+            const seen = new Set();
+
+            for (const value of rawWords) {
+                if (typeof value !== "string") continue;
+
+                const word = value.replace(/\s+/g, " ").trim();
+                const normalized = normalizeWord(word);
+
+                if (!word || !normalized || seen.has(normalized)) continue;
+
+                seen.add(normalized);
+                uniqueWords.push(word);
+            }
+
+            if (uniqueWords.length < minimumRequired) {
+                throw new Error(`O Gemini retornou apenas ${uniqueWords.length} palavras distintas, mas são necessárias ${minimumRequired}. Tente novamente ou reduza o número de jogadores.`);
+            }
+
+            return uniqueWords;
+        }
+
+        /* =========================================
+           HISTÓRICO DE PARTIDAS
+        ========================================= */
+
+        const HISTORY_KEY = "papelitos_historico_v3";
+
+        function readHistory() {
+
+            try {
+                const history = JSON.parse(
+                    localStorage.getItem(HISTORY_KEY) || "[]"
+                );
+
+                return Array.isArray(history) ? history : [];
+
+            } catch (error) {
+                return [];
+            }
+        }
+
+        function chooseWords(amount, sourceBank) {
+
+            const history = readHistory();
+            const recentGames = history.slice(0, 2);
+            const recentlyUsed = new Set(recentGames.flat().map(normalizeWord));
+
+            let candidates = sourceBank.filter(
+                word => !recentlyUsed.has(normalizeWord(word))
+            );
+
+            // Se não houver palavras suficientes para evitar
+            // as duas partidas, evita pelo menos a última.
+            if (candidates.length < amount) {
+
+                const lastGame = new Set((history[0] || []).map(normalizeWord));
+
+                candidates = sourceBank.filter(
+                    word => !lastGame.has(normalizeWord(word))
+                );
+            }
+
+            // Último recurso: reutiliza palavras antigas,
+            // mantendo todas diferentes dentro desta partida.
+            if (candidates.length < amount) {
+                candidates = [...sourceBank];
+            }
+
+            const distinctCandidates = [...new Map(
+                candidates.map(word => [normalizeWord(word), word])
+            ).values()];
+
+            if (amount > distinctCandidates.length) {
+                return null;
+            }
+
+            return shuffle(distinctCandidates).slice(0, amount);
+        }
+
+        function saveCompletedGame() {
+
+            const history = readHistory();
+
+            const newHistory = [
+                [...words],
+                ...history
+            ].slice(0, 3);
+
+            try {
+                localStorage.setItem(
+                    HISTORY_KEY,
+                    JSON.stringify(newHistory)
+                );
+            } catch (error) {
+                console.warn("Não foi possível salvar o histórico.");
+            }
+        }
+
+        /* =========================================
+           VARIÁVEIS DO JOGO
+        ========================================= */
+
+        let teams = [];
+        let words = [];
+        let pool = [];
+
+        let phase = 0;
+        let teamIndex = 0;
+
+        let duration = 60;
+        let remaining = 60;
+
+        let timer = null;
+        let running = false;
+
+        let currentWord = null;
+        let pendingWord = null;
+
+        let turnHits = [];
+
+        let audioContext = null;
+        let reviewOpen = false;
+        let historySaved = false;
+
+        let phaseNotice = "";
+
+        /* =========================================
+           FASES
+        ========================================= */
+
+        const phases = [
+            "Fase 1 — Uma frase",
+            "Fase 2 — Uma palavra",
+            "Fase 3 — Uma mímica"
+        ];
+
+        /* =========================================
+           FUNÇÕES AUXILIARES
+        ========================================= */
+
+        function $(id) {
+            return document.getElementById(id);
+        }
+
+        function shuffle(array) {
+
+            const a = [...array];
+
+            for (let i = a.length - 1; i > 0; i--) {
+
+                const j = Math.floor(Math.random() * (i + 1));
+
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+
+            return a;
+        }
+
+        function escapeHTML(s) {
+
+            return String(s).replace(/[&<>"']/g, c => ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': "&quot;",
+                "'": "&#39;"
+            }[c]));
+        }
+
+        function formatTime(s) {
+
+            return `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+        }
+
+        function show(id) {
+
+            ["setup", "game", "review", "finish"].forEach(x => {
+                $(x).classList.toggle("hidden", x !== id);
+            });
+        }
+
+        /* =========================================
+           CADASTRO DAS EQUIPES
+        ========================================= */
+
+        function renderTeams() {
+
+            const n = +$("teamCount").value;
+
+            $("teamInputs").innerHTML = "";
+
+            for (let i = 0; i < n; i++) {
+
+                const div = document.createElement("div");
+
+                div.className = "team";
+
+                div.innerHTML = `
+            <label>Nome da equipe ${i + 1}</label>
+
+            <input class="teamName"
+                   value="Equipe ${i + 1}"
+                   maxlength="30">
+
+            <label>Número de jogadores</label>
+
+            <input class="playerCount"
+                   type="number"
+                   min="2"
+                   max="50"
+                   value="2">
+        `;
+
+                $("teamInputs").appendChild(div);
+            }
+        }
+
+        $("teamCount").addEventListener("change", renderTeams);
+
+        renderTeams();
+
+        /* =========================================
+           INÍCIO DA PARTIDA
+        ========================================= */
+
+        async function startGame() {
+
+            const startButton = $("startGameButton");
+            const status = $("generationStatus");
+
+            if (startButton.disabled) return;
+
+            const names = [
+                ...document.querySelectorAll(".teamName")
+            ];
+
+            const counts = [
+                ...document.querySelectorAll(".playerCount")
+            ];
+
+            const playerCounts = counts.map(
+                input => parseInt(input.value) || 0
+            );
+
+            if (playerCounts.some(n => n < 2 || n > 50)) {
+
+                alert("Cada equipe precisa ter entre 2 e 50 jogadores.");
+
+                return;
+            }
+
+            const totalPlayers = playerCounts.reduce(
+                (sum, n) => sum + n, 0
+            );
+
+            // Cada jogador recebe 5 palavras. Uma pequena reserva
+            // permite evitar palavras utilizadas nas partidas recentes.
+            const amount = totalPlayers * 5;
+            const requestedAmount = amount + Math.max(30, Math.ceil(amount * 0.2));
+
+            startButton.disabled = true;
+            status.textContent = `A IA está gerando ${requestedAmount} palavras para selecionar ${amount}...`;
+
+            try {
+                const generatedBank = await generateWordBank(requestedAmount, amount);
+                const selectedWords = chooseWords(amount, generatedBank);
+
+                if (!selectedWords) {
+                    throw new Error("Não foi possível selecionar palavras distintas suficientes. Tente novamente.");
+                }
+
+                teams = names.map((input, i) => ({
+
+                    name: input.value.trim() || `Equipe ${i + 1}`,
+
+                    players: playerCounts[i],
+
+                    hits: [0, 0, 0],
+
+                    wins: 0
+                }));
+
+                words = selectedWords;
+
+                pool = shuffle([...words]);
+
+                duration = +$("time").value;
+
+                phase = 0;
+                teamIndex = 0;
+
+                phaseNotice = "";
+
+                historySaved = false;
+
+                status.textContent = "";
+                show("game");
+                beginTurn();
+
+            } catch (error) {
+                console.error("Erro ao gerar palavras:", error);
+                status.textContent = "Não foi possível gerar as palavras.";
+                alert(error.message || "Ocorreu um erro ao gerar as palavras.");
+
+            } finally {
+                startButton.disabled = false;
+            }
+        }
+
+        /* =========================================
+           ATUALIZAÇÃO DA INTERFACE
+        ========================================= */
+
+        function update() {
+
+            $("phase").textContent = phases[phase];
+
+            $("teamName").textContent = teams[teamIndex].name;
+
+            $("timer").textContent = formatTime(remaining);
+
+            const unresolved =
+                pool.length +
+                (currentWord ? 1 : 0) +
+                (pendingWord ? 1 : 0);
+
+            $("remainingWords").textContent =
+                `${unresolved} palavra(s) ainda não resolvidas`;
+
+            $("phaseNotice").textContent = phaseNotice;
+
+            $("pills").innerHTML = teams.map(t => `
+        <span class="pill">
+            ${escapeHTML(t.name)}: ${t.wins} ponto(s)
+        </span>
+    `).join("");
+
+            $("scoreboard").innerHTML = `
+
+        <table class="score">
+
+            <tr>
+                <th>Equipe</th>
+                <th>Fase 1</th>
+                <th>Fase 2</th>
+                <th>Fase 3</th>
+                <th>Pontos</th>
+            </tr>
+
+            ${teams.map(t => `
+
+                <tr>
+                    <td>${escapeHTML(t.name)}</td>
+
+                    ${t.hits.map(n => `<td>${n}</td>`).join("")}
+
+                    <td>${t.wins}</td>
+                </tr>
+
+            `).join("")}
+
+        </table>
+    `;
+        }
+
+        /* =========================================
+           INÍCIO DO TURNO
+        ========================================= */
+
+        function beginTurn(seconds = duration, autoStart = false) {
+
+            clearInterval(timer);
+
+            timer = null;
+            running = false;
+
+            remaining = seconds;
+
+            turnHits = [];
+
+            currentWord = null;
+            pendingWord = null;
+
+            reviewOpen = false;
+
+            $("word").textContent = "Prepare-se!";
+
+            $("startTimer").disabled = false;
+
+            $("startTimer").textContent = "Iniciar turno";
+
+            $("pause").disabled = true;
+
+            $("nextWord").disabled = true;
+
+            update();
+
+            if (autoStart) {
+                startTimer();
+            }
+        }
+
+        /* =========================================
+           ALARME SONORO
+        ========================================= */
+
+        function prepareAudio() {
+
+            const AudioCtx =
+                window.AudioContext ||
+                window.webkitAudioContext;
+
+            if (!AudioCtx) return;
+
+            try {
+
+                if (!audioContext) {
+                    audioContext = new AudioCtx();
+                }
+
+                if (audioContext.state === "suspended") {
+                    audioContext.resume();
+                }
+
+            } catch (error) {
+                console.warn("Áudio indisponível.");
+            }
+        }
+
+        function playAlarm() {
+
+            if (!audioContext) return;
+
+            try {
+
+                const now = audioContext.currentTime;
+
+                [0, 0.3, 0.6].forEach(delay => {
+
+                    const oscillator = audioContext.createOscillator();
+
+                    const gain = audioContext.createGain();
+
+                    oscillator.type = "sine";
+
+                    oscillator.frequency.setValueAtTime(
+                        880,
+                        now + delay
+                    );
+
+                    gain.gain.setValueAtTime(
+                        0.001,
+                        now + delay
+                    );
+
+                    gain.gain.exponentialRampToValueAtTime(
+                        0.6,
+                        now + delay + 0.025
+                    );
+
+                    gain.gain.exponentialRampToValueAtTime(
+                        0.001,
+                        now + delay + 0.22
+                    );
+
+                    oscillator.connect(gain);
+
+                    gain.connect(audioContext.destination);
+
+                    oscillator.start(now + delay);
+
+                    oscillator.stop(now + delay + 0.23);
+
+                });
+
+            } catch (error) {
+                console.warn("Não foi possível reproduzir o alarme.");
+            }
+        }
+
+        /* =========================================
+           CRONÔMETRO
+        ========================================= */
+
+        function startTimer() {
+
+            if (running) return;
+
+            prepareAudio();
+
+            if (!currentWord) {
+
+                if (pool.length === 0) {
+                    return;
+                }
+
+                drawWord();
+            }
+
+            if (!currentWord) return;
+
+            running = true;
+
+            $("startTimer").disabled = true;
+
+            $("pause").disabled = false;
+
+            $("nextWord").disabled = false;
+
+            timer = setInterval(() => {
+
+                remaining--;
+
+                $("timer").textContent = formatTime(remaining);
+
+                if (remaining <= 0) {
+
+                    remaining = 0;
+
+                    $("timer").textContent = "00:00";
+
+                    playAlarm();
+
+                    endTurn("timeout");
+                }
+
+            }, 1000);
+        }
+
+        function pauseTimer() {
+
+            if (!running) return;
+
+            clearInterval(timer);
+
+            timer = null;
+
+            running = false;
+
+            $("pause").disabled = true;
+
+            $("startTimer").disabled = false;
+
+            $("startTimer").textContent = "Retomar";
+
+            $("nextWord").disabled = true;
+        }
+
+        /* =========================================
+           SORTEIO DAS PALAVRAS
+        ========================================= */
+
+        function drawWord() {
+
+            if (pool.length === 0) {
+                return;
+            }
+
+            currentWord = pool.shift();
+
+            $("word").textContent = currentWord;
+
+            update();
+        }
+
+        /* =========================================
+           ÚNICO BOTÃO: PRÓXIMA PALAVRA
+        ========================================= */
+
+        function nextWord() {
+
+            if (!running || !currentWord) return;
+
+            // O acerto é provisório até a revisão.
+            turnHits.push(currentWord);
+
+            currentWord = null;
+
+            // Se a última palavra foi avançada,
+            // encerra o turno para conferir o resumo.
+            if (pool.length === 0) {
+
+                endTurn("phaseComplete");
+
+            } else {
+
+                drawWord();
+            }
+        }
+
+        /* =========================================
+           ATALHO DO TECLADO
+        ========================================= */
+
+        document.addEventListener("keydown", event => {
+
+            if (
+                (event.key === "ArrowRight" || event.key === "Enter" || event.key === " ") &&
+                running &&
+                !event.repeat
+            ) {
+
+                const tag = event.target.tagName;
+
+                if (
+                    ["INPUT", "TEXTAREA", "SELECT"].includes(tag) ||
+                    event.target.isContentEditable
+                ) {
+                    return;
+                }
+
+                event.preventDefault();
+
+                nextWord();
+            }
+
+        });
+
+        /* =========================================
+           FINALIZAÇÃO DO TURNO
+        ========================================= */
+
+        function endTurn(reason) {
+
+            clearInterval(timer);
+
+            timer = null;
+
+            running = false;
+
+            // A palavra que ficou na tela quando o tempo
+            // terminou pode ser validada na revisão.
+            if (currentWord) {
+
+                if (reason === "timeout") {
+
+                    pendingWord = currentWord;
+
+                } else {
+
+                    pool.push(currentWord);
+                }
+
+                currentWord = null;
+            }
+
+            $("nextWord").disabled = true;
+
+            $("pause").disabled = true;
+
+            $("startTimer").disabled = true;
+
+            renderReview();
+        }
+
+        /* =========================================
+           RESUMO DO TURNO
+        ========================================= */
+
+        function renderReview() {
+
+            reviewOpen = true;
+
+            $("reviewTitle").textContent =
+                `Resumo do turno — ${teams[teamIndex].name}`;
+
+            let html = "";
+
+            // Palavras avançadas: começam selecionadas.
+            turnHits.forEach((word, index) => {
+
+                html += `
+
+            <label class="review">
+
+                <input
+                    type="checkbox"
+                    checked
+                    data-hit="${index}"
+                >
+
+                <span>${escapeHTML(word)}</span>
+
+                <span class="muted">Vale ponto</span>
+
+            </label>
+
+        `;
+            });
+
+            // Última palavra: opção de validação manual.
+            if (pendingWord) {
+
+                html += `
+
+            <label class="review"
+                   style="border:1px solid #ffc857">
+
+                <input
+                    type="checkbox"
+                    data-pending="true"
+                >
+
+                <span>${escapeHTML(pendingWord)}</span>
+
+                <span class="muted">
+                    Última palavra — validar se foi acertada
+                </span>
+
+            </label>
+
+        `;
+            }
+
+            $("reviewList").innerHTML =
+                html || "<p>Nenhuma palavra registrada neste turno.</p>";
+
+            $("confirmReview").disabled = false;
+
+            show("review");
+        }
+
+        /* =========================================
+           CONFIRMAR RESUMO
+        ========================================= */
+
+        function confirmReview() {
+
+            // Evita contabilizar duas vezes o mesmo resumo.
+            if (!reviewOpen) return;
+
+            reviewOpen = false;
+
+            $("confirmReview").disabled = true;
+
+            const checks = [
+                ...$("reviewList").querySelectorAll(
+                    'input[type="checkbox"]'
+                )
+            ];
+
+            let accepted = 0;
+
+            let rejected = [];
+
+            checks.forEach(check => {
+
+                // Última palavra que estava na tela
+                // quando o cronômetro terminou.
+                if (check.dataset.pending === "true") {
+
+                    if (check.checked) {
+
+                        accepted++;
+
+                    } else {
+
+                        pool.push(pendingWord);
+                    }
+
+                    pendingWord = null;
+
+                    return;
+                }
+
+                const word = turnHits[
+                    Number(check.dataset.hit)
+                ];
+
+                if (check.checked) {
+
+                    accepted++;
+
+                } else {
+
+                    rejected.push(word);
+                }
+
+            });
+
+            // Devolve as palavras desmarcadas ao conjunto.
+            pool.push(...rejected);
+
+            // Atualiza a pontuação somente depois da revisão.
+            teams[teamIndex].hits[phase] += accepted;
+
+            // Embaralha as palavras que retornaram.
+            pool = shuffle(pool);
+
+            update();
+
+            // A fase termina apenas quando todas as palavras
+            // foram efetivamente validadas.
+            if (pool.length === 0) {
+
+                finishPhase(remaining);
+
+                return;
+            }
+
+            // Enquanto houver palavras, passa para a próxima equipe.
+            teamIndex = (teamIndex + 1) % teams.length;
+
+            show("game");
+
+            beginTurn(duration);
+        }
+
+        /* =========================================
+           FINALIZAÇÃO DA FASE
+        ========================================= */
+
+        function finishPhase(carrySeconds) {
+
+            clearInterval(timer);
+
+            timer = null;
+
+            running = false;
+
+            const completedPhase = phase;
+
+            const maxHits = Math.max(
+                ...teams.map(t => t.hits[completedPhase])
+            );
+
+            const winners = teams.filter(
+                t => t.hits[completedPhase] === maxHits
+            );
+
+            if (winners.length === 1) {
+
+                winners[0].wins++;
+
+                phaseNotice =
+                    `${phases[completedPhase]} concluída! ${winners[0].name} venceu a fase.`;
+
+            } else {
+
+                phaseNotice =
+                    `${phases[completedPhase]} concluída! A fase terminou empatada.`;
+            }
+
+            // Se era a última fase, finaliza a partida.
+            if (phase === 2) {
+
+                finishGame();
+
+                return;
+            }
+
+            // Avança para a próxima fase.
+            phase++;
+
+            // As mesmas palavras retornam ao conjunto.
+            pool = shuffle([...words]);
+
+            show("game");
+
+            if (carrySeconds > 0) {
+
+                // O mesmo time continua utilizando o tempo restante.
+                beginTurn(carrySeconds, true);
+
+            } else {
+
+                // Sem tempo restante, a próxima equipe começa.
+                teamIndex = (teamIndex + 1) % teams.length;
+
+                beginTurn(duration);
+            }
+        }
+
+        /* =========================================
+           RESULTADO FINAL
+        ========================================= */
+
+        function finishGame() {
+
+            clearInterval(timer);
+
+            timer = null;
+
+            running = false;
+
+            if (!historySaved) {
+
+                saveCompletedGame();
+
+                historySaved = true;
+            }
+
+            const maxWins = Math.max(
+                ...teams.map(t => t.wins)
+            );
+
+            let candidates = teams.filter(
+                t => t.wins === maxWins
+            );
+
+            // Desempate pela quantidade total de acertos.
+            const totalHits = t => t.hits.reduce(
+                (sum, n) => sum + n, 0
+            );
+
+            const maxTotal = Math.max(
+                ...candidates.map(totalHits)
+            );
+
+            const winners = candidates.filter(
+                t => totalHits(t) === maxTotal
+            );
+
+            $("winner").textContent =
+                winners.length === 1
+                    ? `🏆 ${winners[0].name} venceu!`
+                    : "🤝 Empate!";
+
+            $("finalScore").innerHTML = `
+
+        <table class="score">
+
+            <tr>
+                <th>Equipe</th>
+                <th>Fase 1</th>
+                <th>Fase 2</th>
+                <th>Fase 3</th>
+                <th>Pontos</th>
+                <th>Total</th>
+            </tr>
+
+            ${teams.map(t => `
+
+                <tr>
+
+                    <td>${escapeHTML(t.name)}</td>
+
+                    ${t.hits.map(n => `<td>${n}</td>`).join("")}
+
+                    <td>${t.wins}</td>
+
+                    <td>${totalHits(t)}</td>
+
+                </tr>
+
+            `).join("")}
+
+        </table>
+
+        <p class="muted">
+            O vencedor é definido pelo número de fases ganhas.
+            Em caso de empate, vale o total de acertos.
+        </p>
+    `;
+
+            show("finish");
+        }
+
+    </script>
+
+</body>
+
+</html>
